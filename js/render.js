@@ -6,6 +6,7 @@
   let lastLocation = 'lavaux';
   let backdropAnimation = null;
   let transitionTimer;
+  let pinsObserver;
   let waveFrame;
   let waveY = 48;
   function railPath(y) {
@@ -397,6 +398,12 @@
         toggle.dataset.universe = universe;
       }
       if (!holder) return;
+      if (!pinsObserver && window.ResizeObserver) {
+        pinsObserver = new ResizeObserver(function () {
+          holder.querySelectorAll('.outfit-piece:not(.is-leaving)').forEach(function (piece) { App.render.positionPin(piece); });
+        });
+        pinsObserver.observe(holder);
+      }
       // Each zone comes from the global universe unless the visitor swiped that product.
       const pieces = this.selectedLook();
       const fig = holder.parentNode;
@@ -438,6 +445,7 @@
           boot.alt = '';
           boot.draggable = false;
           boot.className = 'boot-' + side;
+          boot.onload = function () { App.render.positionPin(img); };
           boot.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
           img.appendChild(boot);
         });
@@ -461,7 +469,18 @@
       bubble.append(name, amount);
       tag.append(dot, bubble);
       img.priceTag = tag;
+      img.onload = function () { App.render.positionPin(img); };
       return img;
+    },
+    positionPin(piece) {
+      const tag = piece.priceTag;
+      const source = piece.querySelector('img') || piece;
+      if (!tag || !piece.isConnected || !source.naturalWidth) return;
+      const width = getComputedStyle(piece).objectFit === 'fill' ? piece.offsetWidth : Math.min(piece.offsetWidth, piece.offsetHeight * source.naturalWidth / source.naturalHeight);
+      const left = piece.offsetLeft + (piece.offsetWidth - width) / 2;
+      const rightSide = piece.dataset.group === 'head' || piece.dataset.group === 'top';
+      const edge = left + width * (rightSide ? .92 : .08);
+      tag.style.setProperty('--pin-length', Math.abs(tag.offsetLeft - edge) + 'px');
     },
     reduceMotion() {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -504,6 +523,7 @@
       const price = el.priceTag;
       holder.appendChild(el);
       if (price) holder.appendChild(price);
+      this.positionPin(el);
       if (this.reduceMotion() || !el.animate) return;
       const sliding = mode === -1 || mode === 1;
       const frames = [
@@ -523,6 +543,11 @@
     },
     // Which product is under this point? Uses the drawn image area, not its transparent box.
     pieceAt(x, y) {
+      const head = document.querySelector('#outfit-layers .outfit-piece[data-group="head"]:not(.is-leaving)');
+      if (head) {
+        const zone = head.parentNode.getBoundingClientRect();
+        if (x >= zone.left + zone.width * .05 && x <= zone.right - zone.width * .05 && y >= zone.top - zone.height * .07 && y <= zone.top + zone.height * .15) return head;
+      }
       // Check the front-most product first (highest z-index: headwear, top, shoes, bottom).
       const imgs = Array.from(document.querySelectorAll('#outfit-layers .outfit-piece:not(.is-leaving)'))
         .sort(function (a, b) { return (parseInt(getComputedStyle(b).zIndex, 10) || 0) - (parseInt(getComputedStyle(a).zIndex, 10) || 0); });
