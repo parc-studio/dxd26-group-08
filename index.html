@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/frame.css" />
-    <link rel="stylesheet" href="css/app.css?v=20261029-shorts-legs" />
+    <link rel="stylesheet" href="css/app.css?v=20261029-compass-marker" />
   </head>
   <body>
     <div class="phone" id="salomon-app">
@@ -108,14 +108,14 @@
             <button type="button" class="weather-choice" data-action="set-weather" data-weather="snow" aria-label="Snowy weather" title="Snow"><svg class="icon" aria-hidden="true"><use href="#i-snow"></use></svg></button>
             <button type="button" class="weather-choice" data-action="set-weather" data-weather="cloud" aria-label="Overcast and windy weather" title="Cloud / Wind"><svg class="icon" aria-hidden="true"><use href="#i-wind"></use></svg></button>
           </div>
-          <div class="step-controls section-panel panel-shop" id="panel-shop" role="region" aria-label="Store direction" inert>
+          <div class="step-controls section-panel panel-shop" id="panel-shop" role="region" aria-label="Shop direction" inert>
             <button type="button" class="compass-dial" data-action="start-compass" aria-label="Enable compass direction to the store">
-              <span class="compass-north" aria-hidden="true">N</span>
+              <span class="compass-north" aria-hidden="true"></span>
               <svg class="compass-needle" id="compass-needle" viewBox="0 0 24 24" aria-hidden="true"><path class="needle-n" d="M12 3 15 12H9Z"/><path class="needle-s" d="M12 21 9 12h6Z"/></svg>
             </button>
             <div class="shop-readout" role="status" aria-live="polite">
-              <span class="shop-distance" data-show="shop-distance">—</span>
-              <span class="shop-name" data-show="shop-name">Salomon store</span>
+              <span class="shop-distance" data-show="shop-distance">1.2 km</span>
+              <span class="shop-name" data-show="shop-name">Salomon · Lavaux</span>
             </div>
           </div>
           <div class="step-controls section-panel panel-outfit" id="panel-outfit" inert>
@@ -157,9 +157,9 @@
     <script src="js/outfits.js?v=20261029-paris-wind-black"></script>
     <script src="js/state.js?v=20261029-lavaux-start"></script>
     <script src="js/shared.js"></script>
-    <script src="js/shop.js?v=20261029-device-compass"></script>
-    <script src="js/media.js?v=20261029-flow"></script>
+    <script src="js/shop.js?v=20261029-shop-name"></script>
+    <script src="js/media.js?v=20261029-matterhorn-rain"></script>
     <script src="js/render.js?v=20261029-shorts-legs"></script>
-    <script src="js/app.js?v=20261029-paris-wind"></script>
+    <script src="js/app.js?v=20261029-matterhorn-rain"></script>
   </body>
 </html>

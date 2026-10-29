@@ -99,12 +99,12 @@
 
   function resetCityWeather(location) {
     App.state.set('isWeatherPreview', false);
-    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'cloud' };
+    const conditions = { barcelona: 'sun', matterhorn: 'rain', lavaux: 'rain', paris: 'cloud' };
     App.state.set('weather', conditions[location] || 'cloud');
     if (location === 'barcelona') {
       App.state.set('mix', { top: 'lifestyle', shoes: 'lifestyle' });
     }
-    if (location === 'paris') {
+    if (location === 'paris' || location === 'matterhorn') {
       App.state.set('mix', { head: 'lifestyle', top: 'lifestyle', bottom: 'lifestyle', shoes: 'lifestyle' });
     }
   }
@@ -197,6 +197,9 @@
     'set-weather'(button) {
       App.state.set('isWeatherPreview', true);
       App.state.set('weather', button.dataset.weather);
+      if (App.state.get('location') === 'matterhorn' && button.dataset.weather === 'snow') {
+        App.state.set('mix', { head: 'lifestyle', top: 'lifestyle', bottom: 'lifestyle', shoes: 'lifestyle' });
+      }
       App.state.set('step', 'weather');
       App.state.set('menuSection', 'weather');
       App.state.set('menuOpen', true);

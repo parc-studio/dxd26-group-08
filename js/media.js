@@ -57,7 +57,7 @@
       paths(city, weather).forEach(function (src) { ready(src, 1); });
     },
     start: function () {
-      const flow = [['lavaux', 'rain'], ['matterhorn', 'snow'], ['matterhorn', 'sun'], ['matterhorn', 'cloud'], ['matterhorn', 'rain']];
+      const flow = [['lavaux', 'rain'], ['matterhorn', 'rain'], ['matterhorn', 'snow'], ['matterhorn', 'sun'], ['matterhorn', 'cloud']];
       const critical = [];
       flow.forEach(function (step, index) {
         // The first interaction is a swipe on the upper layer.
