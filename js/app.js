@@ -99,8 +99,14 @@
 
   function resetCityWeather(location) {
     App.state.set('isWeatherPreview', false);
-    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'snow' };
+    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'cloud' };
     App.state.set('weather', conditions[location] || 'cloud');
+    if (location === 'barcelona') {
+      App.state.set('mix', { top: 'lifestyle', shoes: 'lifestyle' });
+    }
+    if (location === 'paris') {
+      App.state.set('mix', { head: 'lifestyle', top: 'lifestyle', bottom: 'lifestyle', shoes: 'lifestyle' });
+    }
   }
 
   function enterScene(location) {

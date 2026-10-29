@@ -195,7 +195,7 @@
       sport: styledLook(['shakeout-core-5-short', 's-lab-phantasm-3', 'sense-aero-graphic', 'shakeout-casquette'])
     },
     cloud: {
-      lifestyle: styledLook(['outerpath-utility', 'xt-6', 'lilac-puffer', 'black-beanie']),
+      lifestyle: styledLook(['technical-pants', 'genesis-2-gore-tex-spike', 'mountain-flex', 'black-beanie']),
       sport: styledLook(['sense-aero-stow-tights', 'aero-glide-4', 'sense-aero-wind', 'sense-aero-bandeau'])
     },
     rain: {
@@ -203,7 +203,7 @@
       sport: styledLook(['sense-aero-stow-tights', 'genesis-2-gore-tex-spike', 'bonatti-waterproof', 'shakeout-casquette'])
     },
     snow: {
-      lifestyle: styledLook(['wayfarer-warm', 'x-ultra-snowpilot-waterproof', 'black-puffer', 'cream-beanie']),
+      lifestyle: styledLook(['outerpath-utility', 'aero-glide-4', 'lilac-puffer', 'black-beanie']),
       sport: styledLook(['technical-pants', 'genesis-2-gore-tex-spike', 'mountain-flex', 'sense-aero-bandeau'])
     }
   };
