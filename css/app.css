@@ -328,7 +328,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .city-arrow:focus:not(:focus-visible) {outline:none;}
 
 /* Destination compass: the names and graduations travel together. */
-.scene-header {top:calc(var(--safe-top) + 64px);left:12px;right:12px;}
+.scene-header {top:calc(var(--safe-top) + 52px);left:12px;right:12px;pointer-events:auto;touch-action:pan-y;user-select:none;-webkit-user-select:none;}
 .scene-heading {text-align:center;text-shadow:none;}
 .city-compass {position:relative;overflow:hidden;}
 .city-compass-track {display:grid;grid-template-columns:1fr 1.8fr 1fr;align-items:center;min-height:44px;}

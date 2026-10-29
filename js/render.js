@@ -163,7 +163,7 @@
       const w = App.utils.weathers[weather];
       if (!p || !w) return;
       show('scene-location', p.label);
-      const cities = ['matterhorn', 'barcelona', 'lavaux', 'paris'];
+      const cities = ['barcelona', 'lavaux', 'matterhorn', 'paris'];
       const cityIndex = cities.indexOf(location);
       const pagination = document.querySelector('.city-pagination');
       pagination.setAttribute('aria-label', p.label + ', city ' + (cityIndex + 1) + ' of 4');

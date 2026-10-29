@@ -99,7 +99,7 @@
 
   function resetCityWeather(location) {
     App.state.set('isWeatherPreview', false);
-    const conditions = { barcelona: 'sun', matterhorn: 'cloud', lavaux: 'rain', paris: 'rain' };
+    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'rain' };
     App.state.set('weather', conditions[location] || 'cloud');
   }
 
@@ -142,7 +142,7 @@
   }
 
   function cycleCity(direction) {
-    const cities = ['matterhorn', 'barcelona', 'lavaux', 'paris'];
+    const cities = ['barcelona', 'lavaux', 'matterhorn', 'paris'];
     const current = cities.indexOf(App.state.get('location'));
     const next = cities[(current + direction + cities.length) % cities.length];
     App.render.citySwap(direction, function () {
@@ -334,7 +334,7 @@
     const scene = document.querySelector('[data-screen="scene"]');
     scene.addEventListener('pointerdown', function (event) {
       if (App.state.get('cartOpen')) return;
-      if (event.target.closest('button, input, form, .weather-rail')) return;
+      if (event.target.closest('button, input, form, .weather-rail, .scene-header')) return;
       const el = App.render.pieceAt(event.clientX, event.clientY);
       swipeStart = { x: event.clientX, y: event.clientY, time: Date.now() };
       // Bare head: a swipe there brings back the headwear of the other universe.
@@ -418,7 +418,7 @@
   }
 
   function bindCitySwipe() {
-    document.querySelectorAll('.scene-city-cycle, .city-arrow').forEach(bindCityGesture);
+    document.querySelectorAll('.scene-header').forEach(bindCityGesture);
   }
 
   function bindCityGesture(city) {
@@ -427,7 +427,8 @@
       if (event.button !== 0) return;
       suppressCityClick = false;
       gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
-      city.setPointerCapture(event.pointerId);
+      const target = event.target.closest('button') || city;
+      target.setPointerCapture(event.pointerId);
     });
     city.addEventListener('pointerup', function (event) {
       if (!gesture || event.pointerId !== gesture.id) return;
