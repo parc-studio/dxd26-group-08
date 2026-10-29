@@ -343,8 +343,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .price-dot-top {top:25%;left:118%;}
 .price-dot-bottom {top:61%;left:-12%;}
 .price-dot-shoes {top:94%;left:-12%;}
-.price-dot::after {content:'';position:absolute;z-index:-1;top:0;right:0;width:var(--pin-length,40px);height:1px;background:rgba(210,210,210,.6);pointer-events:none;}
-.price-dot-bottom::after,.price-dot-shoes::after {right:auto;left:0;}
+.price-dot::after {display:none;}
 .price-dot-button::before {width:11px;height:11px;background:#ccc;box-shadow:none;}
 .price-dot.is-open .price-dot-button::before {visibility:hidden;}
 .price-dot .price-bubble,.price-dot.is-open .price-bubble {top:0;bottom:auto;left:0;right:auto;transform:translate(-50%,-50%);}

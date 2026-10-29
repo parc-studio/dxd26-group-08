@@ -152,12 +152,17 @@
   }
 
   const actions = {
-    'toggle-price'(button) {
-      const tag = button.closest('.price-dot');
-      closePrices(tag);
-      const open = !tag.classList.contains('is-open');
-      tag.classList.toggle('is-open', open);
-      button.setAttribute('aria-expanded', String(open));
+    'open-product'(button) {
+      actions['open-cart']();
+      const holder = document.getElementById('cart-items');
+      const row = Array.from(holder.querySelectorAll('.cart-item')).find(function (item) { return item.dataset.src === button.dataset.src; });
+      if (row) {
+        requestAnimationFrame(function () {
+          holder.style.paddingBottom = Math.max(0, holder.clientHeight - row.offsetHeight) + 'px';
+          holder.scrollTop += row.getBoundingClientRect().top - holder.getBoundingClientRect().top;
+          row.focus({ preventScroll: true });
+        });
+      }
     },
     'select-location'(button) { enterScene(button.dataset.location); },
     'use-location'() { geolocate(); },
@@ -194,6 +199,7 @@
       App.shop.stop();
       App.state.set('cartStage', 'bag');
       App.state.set('cartOpen', true);
+      document.getElementById('cart-items').scrollTop = 0;
       document.querySelector('.cart-close').focus({ preventScroll: true });
     },
     'close-cart'() {

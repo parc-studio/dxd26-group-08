@@ -6,7 +6,6 @@
   let lastLocation = 'lavaux';
   let backdropAnimation = null;
   let transitionTimer;
-  let pinsObserver;
   let waveFrame;
   let waveY = 48;
   function railPath(y) {
@@ -298,13 +297,17 @@
       const look = this.currentLook();
       const removed = App.state.get('cartRemoved');
       const stage = App.state.get('cartStage');
-      const pieces = stage === 'bag' ? look.filter(function (piece) { return removed.indexOf(piece.src) === -1; }) : App.state.get('checkoutPieces');
+      const order = { hat: 0, headband: 0, top: 1, pants: 2, shorts: 2, tights: 2, shoes: 3 };
+      const pieces = (stage === 'bag' ? look.filter(function (piece) { return removed.indexOf(piece.src) === -1; }) : App.state.get('checkoutPieces')).slice().sort(function (a, b) { return order[a.slot] - order[b.slot]; });
       const holder = document.getElementById('cart-items');
+      holder.style.paddingBottom = '';
       holder.replaceChildren();
       const descriptions = { top: 'Outer layer', pants: 'Outdoor pants', shorts: 'Technical shorts', tights: 'Technical tights', shoes: 'Outdoor footwear', hat: 'Headwear', headband: 'Technical headband' };
       pieces.forEach(function (piece) {
         const row = document.createElement('article');
         row.className = 'cart-item';
+        row.dataset.src = piece.src;
+        row.tabIndex = -1;
         const photo = document.createElement('div'); photo.className = 'cart-photo';
         const img = document.createElement('img'); img.src = piece.src; img.alt = piece.label; photo.appendChild(img);
         const info = document.createElement('div'); info.className = 'cart-info';
@@ -398,12 +401,6 @@
         toggle.dataset.universe = universe;
       }
       if (!holder) return;
-      if (!pinsObserver && window.ResizeObserver) {
-        pinsObserver = new ResizeObserver(function () {
-          holder.querySelectorAll('.outfit-piece:not(.is-leaving)').forEach(function (piece) { App.render.positionPin(piece); });
-        });
-        pinsObserver.observe(holder);
-      }
       // Each zone comes from the global universe unless the visitor swiped that product.
       const pieces = this.selectedLook();
       const fig = holder.parentNode;
@@ -445,7 +442,6 @@
           boot.alt = '';
           boot.draggable = false;
           boot.className = 'boot-' + side;
-          boot.onload = function () { App.render.positionPin(img); };
           boot.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
           img.appendChild(boot);
         });
@@ -458,29 +454,14 @@
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = 'price-dot-button';
-      dot.dataset.action = 'toggle-price';
-      dot.setAttribute('aria-label', piece.label + ', price');
-      dot.setAttribute('aria-expanded', 'false');
-      const bubble = document.createElement('span');
-      bubble.className = 'price-bubble';
-      bubble.setAttribute('role', 'status');
-      const name = document.createElement('span'); name.className = 'price-bubble-name'; name.textContent = piece.label;
-      const amount = document.createElement('strong'); amount.textContent = 'CHF ' + piece.price;
-      bubble.append(name, amount);
-      tag.append(dot, bubble);
+      dot.dataset.action = 'open-product';
+      dot.dataset.src = piece.src;
+      dot.setAttribute('aria-label', 'View ' + piece.label);
+      dot.setAttribute('aria-haspopup', 'dialog');
+      dot.setAttribute('aria-controls', 'cart-overlay');
+      tag.appendChild(dot);
       img.priceTag = tag;
-      img.onload = function () { App.render.positionPin(img); };
       return img;
-    },
-    positionPin(piece) {
-      const tag = piece.priceTag;
-      const source = piece.querySelector('img') || piece;
-      if (!tag || !piece.isConnected || !source.naturalWidth) return;
-      const width = getComputedStyle(piece).objectFit === 'fill' ? piece.offsetWidth : Math.min(piece.offsetWidth, piece.offsetHeight * source.naturalWidth / source.naturalHeight);
-      const left = piece.offsetLeft + (piece.offsetWidth - width) / 2;
-      const rightSide = piece.dataset.group === 'head' || piece.dataset.group === 'top';
-      const edge = left + width * (rightSide ? .92 : .08);
-      tag.style.setProperty('--pin-length', Math.abs(tag.offsetLeft - edge) + 'px');
     },
     reduceMotion() {
       return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -523,7 +504,6 @@
       const price = el.priceTag;
       holder.appendChild(el);
       if (price) holder.appendChild(price);
-      this.positionPin(el);
       if (this.reduceMotion() || !el.animate) return;
       const sliding = mode === -1 || mode === 1;
       const frames = [
