@@ -114,7 +114,8 @@
     App.state.set('location', location);
     resetCityWeather(location);
     App.state.set('menuOpen', false);
-    App.state.set('step', 'weather');
+    App.state.set('menuSection', 'outfit');
+    App.state.set('step', 'outfit');
     App.state.set('locationError', '');
     setScreen('scene');
   }

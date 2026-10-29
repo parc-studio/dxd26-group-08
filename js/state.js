@@ -14,8 +14,8 @@
     checkoutPieces: [],
     cartRemoved: [],
     cartLook: '',
-    menuSection: 'weather',
-    step: 'weather',
+    menuSection: 'outfit',
+    step: 'outfit',
     toast: '',
     geoBusy: false,
     locationError: ''
