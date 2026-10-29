@@ -6,6 +6,7 @@
   let lastLocation = 'lavaux';
   let backdropAnimation = null;
   let transitionTimer;
+  let outfitRequest = 0;
   let waveFrame;
   let waveY = 48;
   function railPath(y) {
@@ -43,17 +44,6 @@
     document.querySelectorAll('[data-show="' + name + '"]').forEach(function (node) { node.textContent = value; });
   }
 
-  // Warm the cache: the other cities in the current weather, so switching city is instant.
-  const preloaded = {};
-  function preloadCities(weather) {
-    ['matterhorn', 'barcelona', 'lavaux', 'paris'].forEach(function (city) {
-      const path = App.utils.imageFor(city, weather);
-      if (preloaded[path]) return;
-      preloaded[path] = new Image();
-      preloaded[path].src = path;
-    });
-  }
-
   function crossfadeImage() {
     const location = App.state.get('location');
     const weather = App.state.get('weather');
@@ -64,11 +54,16 @@
       document.getElementById('salomon-app').classList.remove('is-scene-changing');
       return;
     }
-    const newImage = new Image();
     const path = App.utils.imageFor(location, weather);
-    newImage.onload = function () {
+    App.media.ready(path).then(function (loaded) {
+      if (!loaded) {
+        if (serial === imageRequest) {
+          document.getElementById('salomon-app').classList.remove('is-scene-changing');
+          App.render.toast('Scene unavailable. Try another weather.');
+        }
+        return;
+      }
       if (serial !== imageRequest) return;
-      setTimeout(function () { preloadCities(weather); }, 300);
       const app = document.getElementById('salomon-app');
       const cityChanged = location !== lastLocation;
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -103,14 +98,7 @@
       }
       if (cityChanged && !reduce) transitionTimer = setTimeout(swap, 300);
       else swap();
-    };
-    newImage.onerror = function () {
-      if (serial === imageRequest) {
-        document.getElementById('salomon-app').classList.remove('is-scene-changing');
-        App.render.toast('Scene unavailable. Try another weather.');
-      }
-    };
-    newImage.src = path;
+    });
   }
 
   App.render = {
@@ -129,7 +117,7 @@
       requestAnimationFrame(function () { screen.scrollTop = 0; });
     },
     entry() {
-      show('geo-label', App.state.get('geoBusy') ? 'Finding your location...' : 'Allow location');
+      show('geo-label', App.state.get('geoBusy') ? 'Finding your location...' : 'Current location');
       show('location-error', App.state.get('locationError'));
       const btn = document.querySelector('.geolocate-button');
       btn.disabled = App.state.get('geoBusy');
@@ -162,6 +150,7 @@
       const p = App.utils.places[location];
       const w = App.utils.weathers[weather];
       if (!p || !w) return;
+      App.media.context(location, weather);
       show('scene-location', p.label);
       const cities = ['barcelona', 'lavaux', 'matterhorn', 'paris'];
       const cityIndex = cities.indexOf(location);
@@ -309,7 +298,7 @@
         row.dataset.src = piece.src;
         row.tabIndex = -1;
         const photo = document.createElement('div'); photo.className = 'cart-photo';
-        const img = document.createElement('img'); img.src = piece.src; img.alt = piece.label; photo.appendChild(img);
+        const img = document.createElement('img'); img.loading = 'lazy'; img.decoding = 'async'; img.src = piece.src; img.alt = piece.label; photo.appendChild(img);
         const info = document.createElement('div'); info.className = 'cart-info';
         const name = document.createElement('h3'); name.textContent = piece.label;
         const description = document.createElement('p'); description.textContent = descriptions[piece.slot] || 'Outdoor';
@@ -380,6 +369,7 @@
       content.appendChild(summary);
     },
     outfit(mode) {
+      const request = ++outfitRequest;
       const rawLook = this.currentLook();
       const signature = rawLook.map(function (piece) { return piece.src; }).join('|');
       if (signature !== App.state.get('cartLook')) {
@@ -403,23 +393,28 @@
       if (!holder) return;
       // Each zone comes from the global universe unless the visitor swiped that product.
       const pieces = this.selectedLook();
-      const fig = holder.parentNode;
-      const top = pieces.find(function (piece) { return piece.slot === 'top'; });
-      fig.classList.toggle('is-dressed', pieces.length > 0);
-      // Hide the mannequin parts a product already covers, so no white edge shows around it.
-      fig.classList.toggle('hide-torso', Boolean(top));
-      fig.classList.toggle('hide-arms', Boolean(top && !top.short));
-      fig.classList.toggle('hide-feet', pieces.some(function (piece) { return piece.slot === 'shoes'; }));
-      fig.classList.toggle('hide-legs', pieces.some(function (piece) { return piece.slot === 'pants' || piece.slot === 'tights'; }));
-      // Each body zone keeps its own image; only zones whose product changed are animated.
-      const wanted = {};
-      pieces.forEach(function (piece) { wanted[App.outfitGroups[piece.slot]] = piece; });
-      App.outfitOrder.forEach(function (group) {
-        const current = holder.querySelector('.outfit-piece[data-group="' + group + '"]:not(.is-leaving)');
-        const piece = wanted[group];
-        if (current && piece && current.dataset.src === piece.src) return;
-        if (current) App.render.pieceLeave(current, mode);
-        if (piece) App.render.pieceEnter(App.render.pieceImage(piece), mode);
+      Promise.all(pieces.map(function (piece) { return App.media.ready(piece.src); })).then(function () {
+        if (request !== outfitRequest) return;
+        const fig = holder.parentNode;
+        const top = pieces.find(function (piece) { return piece.slot === 'top'; });
+        const summerArms = ['lavaux', 'matterhorn'].indexOf(App.state.get('location')) !== -1 && App.state.get('weather') === 'sun' && top && top.src.indexOf('sense-aero-graphic.webp') !== -1;
+        fig.classList.toggle('is-lavaux-summer', Boolean(summerArms));
+        fig.classList.toggle('is-dressed', pieces.length > 0);
+        // Hide the mannequin parts a product already covers, so no white edge shows around it.
+        fig.classList.toggle('hide-torso', Boolean(top));
+        fig.classList.toggle('hide-arms', Boolean(top && !top.short));
+        fig.classList.toggle('hide-feet', pieces.some(function (piece) { return piece.slot === 'shoes'; }));
+        fig.classList.toggle('hide-legs', pieces.some(function (piece) { return piece.slot === 'pants' || piece.slot === 'tights' || piece.slot === 'shorts'; }));
+        // Each body zone keeps its own image; only zones whose product changed are animated.
+        const wanted = {};
+        pieces.forEach(function (piece) { wanted[App.outfitGroups[piece.slot]] = piece; });
+        App.outfitOrder.forEach(function (group) {
+          const current = holder.querySelector('.outfit-piece[data-group="' + group + '"]:not(.is-leaving)');
+          const piece = wanted[group];
+          if (current && piece && current.dataset.src === piece.src) return;
+          if (current) App.render.pieceLeave(current, mode);
+          if (piece) App.render.pieceEnter(App.render.pieceImage(piece), mode);
+        });
       });
     },
     pieceImage(piece) {
@@ -442,12 +437,12 @@
           boot.alt = '';
           boot.draggable = false;
           boot.className = 'boot-' + side;
-          boot.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
+          boot.onerror = function () { (img.motionNode || img).remove(); if (img.priceTag) img.priceTag.remove(); };
           img.appendChild(boot);
         });
       }
       if (piece.fit) Object.assign(img.style, piece.fit);
-      img.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
+      img.onerror = function () { (img.motionNode || img).remove(); if (img.priceTag) img.priceTag.remove(); };
       // White dot on the product: tap it to see its price. It travels with the product (priceTag).
       const tag = document.createElement('div');
       tag.className = 'price-dot price-dot-' + group;
@@ -474,45 +469,43 @@
     // mode: -1 flies out to the left, 1 to the right, anything else fades. from: current drag offset in px.
     pieceLeave(el, mode, from) {
       el.classList.add('is-leaving');
-      const price = el.priceTag;
-      if (price) price.classList.add('is-leaving');
-      if (this.reduceMotion() || !el.animate) { if (price) price.remove(); el.remove(); return; }
+      const unit = el.motionNode || el;
+      unit.classList.add('is-leaving');
+      if (el.priceTag) el.priceTag.remove();
+      if (this.reduceMotion() || !unit.animate) { unit.remove(); return; }
       const start = from || 0;
-      el.style.transform = '';
-      if (price) price.style.transform = '';
-      const pair = price ? [el, price] : [el];
-      function removePair() { pair.forEach(function (node) { node.remove(); }); }
-      if (mode === -1 || mode === 1) {
-        const target = mode * this.flyDistance();
-        const frames = [
-          { transform: 'translate3d(' + start + 'px, 0, 0) rotate(' + (start / 24) + 'deg)', opacity: 1 },
-          { transform: 'translate3d(' + target + 'px, -20px, 0) rotate(' + (mode * 13) + 'deg)', opacity: 0 }
-        ];
-        pair.forEach(function (node, index) {
-          const animation = node.animate(frames, { duration: 450, easing: 'cubic-bezier(.22,.72,.23,1)', fill: 'forwards' });
-          if (index === 0) animation.onfinish = removePair;
-        });
-      } else {
-        pair.forEach(function (node, index) {
-          const animation = node.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: 'ease', fill: 'forwards' });
-          if (index === 0) animation.onfinish = removePair;
-        });
-      }
+      unit.style.transform = '';
+      const sliding = mode === -1 || mode === 1;
+      const frames = sliding ? [
+        { transform: 'translate3d(' + start + 'px,0,0) rotate(' + (start / 24) + 'deg)', opacity: 1 },
+        { transform: 'translate3d(' + (mode * this.flyDistance()) + 'px,-20px,0) rotate(' + (mode * 13) + 'deg)', opacity: 0 }
+      ] : [{ opacity: 1 }, { opacity: 0 }];
+      const animation = unit.animate(frames, { duration: sliding ? 450 : 260, easing: 'cubic-bezier(.22,.72,.23,1)', fill: 'forwards' });
+      animation.onfinish = function () { unit.remove(); };
     },
     pieceEnter(el, mode) {
       const holder = document.getElementById('outfit-layers');
-      const price = el.priceTag;
-      holder.appendChild(el);
-      if (price) holder.appendChild(price);
-      if (this.reduceMotion() || !el.animate) return;
+      const unit = document.createElement('div');
+      unit.className = 'outfit-unit unit-' + el.dataset.group;
+      el.motionNode = unit;
+      if (el.classList.contains('slot-shorts')) {
+        const legs = document.createElement('img');
+        legs.src = holder.parentNode.querySelector('.avatar-body .b-legs').getAttribute('src');
+        legs.alt = '';
+        legs.className = 'shorts-legs';
+        legs.draggable = false;
+        unit.appendChild(legs);
+      }
+      unit.appendChild(el);
+      holder.appendChild(unit);
+      // The marker stays at its fixed anchor while only the garment moves.
+      if (el.priceTag) holder.appendChild(el.priceTag);
+      if (this.reduceMotion() || !unit.animate) return;
       const sliding = mode === -1 || mode === 1;
-      const frames = [
-        { transform: sliding ? 'translate3d(' + (-mode * 88) + 'px, 0, 0) scale(.97)' : 'translate3d(0, 6px, 0)', opacity: 0 },
-        { transform: 'translate3d(0, 0, 0) scale(1)', opacity: 1 }
-      ];
-      (price ? [el, price] : [el]).forEach(function (node) {
-        node.animate(frames, { duration: 390, easing: 'cubic-bezier(.18,.85,.25,1)', delay: sliding ? 60 : 0, fill: 'backwards' });
-      });
+      unit.animate([
+        { transform: sliding ? 'translate3d(' + (-mode * 88) + 'px,0,0) scale(.97)' : 'translate3d(0,6px,0)', opacity: 0 },
+        { transform: 'translate3d(0,0,0) scale(1)', opacity: 1 }
+      ], { duration: 390, easing: 'cubic-bezier(.18,.85,.25,1)', delay: sliding ? 60 : 0, fill: 'backwards' });
     },
     // Is this point on the avatar's head (top of the silhouette)?
     onBareHead(x, y) {
@@ -536,7 +529,7 @@
         const source = img.querySelector('img') || img;
         const box = img.getBoundingClientRect();
         if (!source.naturalWidth || !box.width) continue;
-        if (img.style.transform) continue;
+        if ((img.motionNode || img).style.transform) continue;
         const scale = Math.min(box.width / source.naturalWidth, box.height / source.naturalHeight);
         const w = source.naturalWidth * scale;
         const h = source.naturalHeight * scale;

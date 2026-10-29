@@ -115,7 +115,7 @@
     return alpine(file, 'hat', label, 180, { top: '-1%', left: '28%', width: '44%', height: '15.5%' });
   }
   const bootFit = { bottom: '-.6%', left: '0', width: '100%', height: '14.5%', objectFit: 'contain' };
-  const bibFit = { top: '22%', left: '6%', width: '88%', height: '70%', objectPosition: '50% 0' };
+  const bibFit = { top: '22%', left: '6%', width: '88%', height: '74%', objectPosition: '50% 0' };
   App.outfits.matterhorn = {
     snow: {
       lifestyle: [

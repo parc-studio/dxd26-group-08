@@ -344,7 +344,20 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .price-dot-bottom {top:61%;left:-12%;}
 .price-dot-shoes {top:94%;left:-12%;}
 .price-dot::after {display:none;}
-.price-dot-button::before {width:11px;height:11px;background:#ccc;box-shadow:none;}
+.price-dot-button::before {width:11px;height:11px;background:#858585;box-shadow:none;}
 .price-dot.is-open .price-dot-button::before {visibility:hidden;}
 .price-dot .price-bubble,.price-dot.is-open .price-bubble {top:0;bottom:auto;left:0;right:auto;transform:translate(-50%,-50%);}
 .price-dot .price-bubble {padding:5px 8px;border-radius:12px;box-shadow:none;}
+
+/* Only the garment moves; its product marker stays outside this group. */
+.outfit-unit {position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%;}
+.unit-shoes {z-index:0;}
+.unit-bottom {z-index:1;}
+.shorts-legs {position:absolute;inset:0;width:100%;height:100%;object-fit:fill;filter:brightness(.56);clip-path:inset(0 0 5% 0);pointer-events:none;}
+.unit-top {z-index:3;}
+.unit-head {z-index:4;}
+.outfit-unit.is-leaving,.outfit-unit.is-dragging {z-index:9;}
+.scene-home {position:absolute;z-index:7;top:calc(var(--safe-top) + 8px);left:50%;transform:translateX(-50%);width:120px;height:44px;display:grid;place-items:center;padding:0;border:0;background:none;}
+.scene-home .scene-logo {position:static;transform:none;width:88px;height:auto;}
+.avatar-figure.is-lavaux-summer .b-arm-l {clip-path:polygon(0 25%,22% 25%,22% 62%,0 62%);}
+.avatar-figure.is-lavaux-summer .b-arm-r {clip-path:polygon(78% 25%,100% 25%,100% 62%,78% 62%);}

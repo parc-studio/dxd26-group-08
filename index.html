@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#101412" />
     <meta name="description" content="Salomon Elements — an immersive weather-led outdoor experience." />
+    <link rel="preload" as="image" href="assets/backgrounds/entry.webp" fetchpriority="high" />
+    <link rel="preload" as="image" href="assets/backgrounds/lavaux-rain.webp" fetchpriority="high" />
     <title>SALOMON — ELEMENTS / V1</title>
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/frame.css" />
-    <link rel="stylesheet" href="css/app.css?v=20261029-product-points" />
+    <link rel="stylesheet" href="css/app.css?v=20261029-shorts-legs" />
   </head>
   <body>
     <div class="phone" id="salomon-app">
@@ -44,7 +46,7 @@
           <div class="entry-panel">
             <button class="geolocate-button" type="button" data-action="use-location">
               <svg class="icon" aria-hidden="true"><use href="#i-location"></use></svg>
-              <span data-show="geo-label">Allow location</span>
+              <span data-show="geo-label">Current location</span>
               <svg class="icon icon-arrow" aria-hidden="true"><use href="#i-arrow"></use></svg>
             </button>
             <div class="entry-or"><span></span> or <span></span></div>
@@ -69,7 +71,9 @@
         <div class="scene-shade" aria-hidden="true"></div>
         <div class="avatar-layer" id="avatar-layer" aria-hidden="true"></div>
 
-        <img class="scene-logo" src="assets/salomon-logo-white.png" alt="Salomon" width="600" height="70" />
+        <button class="scene-home" type="button" data-action="back-to-entry" aria-label="Back to introduction">
+          <img class="scene-logo" src="assets/salomon-logo-white.png" alt="Salomon" width="600" height="70" />
+        </button>
         <header class="scene-header">
           <div class="scene-heading">
             <div class="city-compass">
@@ -148,13 +152,14 @@
               </section>
     </div>
     <script src="js/frame.js"></script>
-    <script src="js/utils.js?v=20261029-lavaux"></script>
+    <script src="js/utils.js?v=20261029-weather-temperatures"></script>
     <script src="js/storage.js"></script>
-    <script src="js/outfits.js?v=20261029-paris-lavaux-looks"></script>
+    <script src="js/outfits.js?v=20261029-green-pants-fit"></script>
     <script src="js/state.js?v=20261029-lavaux-start"></script>
     <script src="js/shared.js"></script>
     <script src="js/shop.js?v=20261029-device-compass"></script>
-    <script src="js/render.js?v=20261029-cart-order"></script>
-    <script src="js/app.js?v=20261029-cart-order"></script>
+    <script src="js/media.js?v=20261029-flow"></script>
+    <script src="js/render.js?v=20261029-shorts-legs"></script>
+    <script src="js/app.js?v=20261029-menu-reclick"></script>
   </body>
 </html>

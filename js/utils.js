@@ -14,10 +14,10 @@
       cloud: { label: 'Overcast', detail: 'Quiet skies. Open horizons.', index: '04', symbol: '#i-wind' }
     },
     temperatures: {
-      barcelona: { sun: '+18°', rain: '+18°', snow: '+18°', cloud: '+18°' },
-      matterhorn: { sun: '+3°', rain: '+3°', snow: '+3°', cloud: '+3°' },
-      lavaux: { sun: '+10°', rain: '+10°', snow: '+10°', cloud: '+10°' },
-      paris: { sun: '+14°', rain: '+14°', snow: '+14°', cloud: '+14°' }
+      barcelona: { sun: '+24°', rain: '+14°', snow: '+2°', cloud: '+17°' },
+      matterhorn: { sun: '+12°', rain: '+4°', snow: '−8°', cloud: '+1°' },
+      lavaux: { sun: '+22°', rain: '+10°', snow: '−2°', cloud: '+13°' },
+      paris: { sun: '+23°', rain: '+12°', snow: '0°', cloud: '+15°' }
     },
     imageFor(location, weather) {
       const place = this.places[location];

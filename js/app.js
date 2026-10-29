@@ -99,7 +99,7 @@
 
   function resetCityWeather(location) {
     App.state.set('isWeatherPreview', false);
-    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'rain' };
+    const conditions = { barcelona: 'sun', matterhorn: 'snow', lavaux: 'rain', paris: 'snow' };
     App.state.set('weather', conditions[location] || 'cloud');
   }
 
@@ -152,14 +152,23 @@
   }
 
   const actions = {
+    'back-to-entry'() {
+      if (screenTransition) { screenTransition.then(function () { actions['back-to-entry'](); }); return; }
+      App.shop.stop();
+      App.state.set('cartOpen', false);
+      App.state.set('menuOpen', false);
+      setScreen('entry');
+    },
     'open-product'(button) {
       actions['open-cart']();
       const holder = document.getElementById('cart-items');
       const row = Array.from(holder.querySelectorAll('.cart-item')).find(function (item) { return item.dataset.src === button.dataset.src; });
       if (row) {
         requestAnimationFrame(function () {
-          holder.style.paddingBottom = Math.max(0, holder.clientHeight - row.offsetHeight) + 'px';
-          holder.scrollTop += row.getBoundingClientRect().top - holder.getBoundingClientRect().top;
+          if (!row.isConnected || !App.state.get('cartOpen')) return;
+          const offset = (holder.clientHeight - row.offsetHeight) / 2;
+          const target = holder.scrollTop + row.getBoundingClientRect().top - holder.getBoundingClientRect().top - offset;
+          holder.scrollTop = Math.max(0, Math.min(target, holder.scrollHeight - holder.clientHeight));
           row.focus({ preventScroll: true });
         });
       }
@@ -188,7 +197,13 @@
       App.shop.stop();
     },
     'select-menu-section'(button) {
-      openSection(button.dataset.menuSection);
+      const section = button.dataset.menuSection;
+      if (App.state.get('menuOpen') && App.state.get('menuSection') === section) {
+        App.state.set('menuOpen', false);
+        App.shop.stop();
+        return;
+      }
+      openSection(section);
     },
     'open-cart'() {
       const look = App.render.currentLook().map(function (piece) { return piece.src; }).join('|');
@@ -294,14 +309,14 @@
     const current = (App.state.get('mix') || {})[group] || App.state.get('universe');
     const target = current === 'sport' ? 'lifestyle' : 'sport';
     const piece = (looks[target] || []).find(function (p) { return App.outfitGroups[p.slot] === group; });
+    if (piece) App.media.ready(piece.src);
     return { universe: target, piece: piece || null };
   }
 
   // While dragging, the product follows the finger and tilts slightly.
   function moveDrag(dx) {
     const transform = 'translate3d(' + dx + 'px, 0, 0) rotate(' + (dx / 24) + 'deg)';
-    drag.el.style.transform = transform;
-    if (drag.el.priceTag) drag.el.priceTag.style.transform = transform;
+    (drag.el.motionNode || drag.el).style.transform = transform;
   }
 
   function endDrag(dx, fast) {
@@ -311,17 +326,17 @@
     const commit = Math.abs(dx) > 70 || (fast && Math.abs(dx) > 24);
     if (!commit) {
       // Not far enough: spring back into place.
+      const unit = d.el.motionNode || d.el;
       const frames = [
-        { transform: d.el.style.transform || 'translate3d(0,0,0)' },
+        { transform: unit.style.transform || 'translate3d(0,0,0)' },
         { transform: 'translate3d(0, 0, 0) rotate(0deg)' }
       ];
-      const back = d.el.animate(frames, { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+      const back = unit.animate(frames, { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
       if (d.el.priceTag) {
-        d.el.priceTag.animate(frames, { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' });
-        d.el.priceTag.style.transform = '';
         d.el.priceTag.classList.remove('is-dragging');
       }
-      d.el.style.transform = '';
+      unit.style.transform = '';
+      unit.classList.remove('is-dragging');
       d.el.classList.remove('is-dragging');
       return back;
     }
@@ -363,6 +378,7 @@
         if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return;
         drag.started = true;
         drag.el.classList.add('is-dragging');
+        if (drag.el.motionNode) drag.el.motionNode.classList.add('is-dragging');
         if (drag.el.priceTag) drag.el.priceTag.classList.add('is-dragging');
       }
       moveDrag(dx);
@@ -479,6 +495,7 @@
   }
 
   function start() {
+    App.media.start();
     App.shared.keep(['location', 'weather', 'universe']);
     if (App.state.get('location') === 'lausanne') App.state.set('location', 'lavaux');
     document.addEventListener('click', tapHandler);
