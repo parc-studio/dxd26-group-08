@@ -2,8 +2,8 @@
   window.App = window.App || {};
   let activeImage = 'a';
   let imageRequest = 0;
-  let lastImage = 'matterhorn-cloud';
-  let lastLocation = 'matterhorn';
+  let lastImage = 'lavaux-rain';
+  let lastLocation = 'lavaux';
   let backdropAnimation = null;
   let transitionTimer;
   let waveFrame;

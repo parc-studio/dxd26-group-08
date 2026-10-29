@@ -2,8 +2,8 @@
   window.App = window.App || {};
   const data = {
     screen: 'entry',
-    location: 'matterhorn',
-    weather: 'cloud',
+    location: 'lavaux',
+    weather: 'rain',
     isWeatherPreview: false,
     universe: 'lifestyle',
     mix: {},

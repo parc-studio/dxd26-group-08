@@ -99,7 +99,7 @@
 
   function resetCityWeather(location) {
     App.state.set('isWeatherPreview', false);
-    const conditions = { barcelona: 'sun', matterhorn: 'cloud', lavaux: 'cloud', paris: 'rain' };
+    const conditions = { barcelona: 'sun', matterhorn: 'cloud', lavaux: 'rain', paris: 'rain' };
     App.state.set('weather', conditions[location] || 'cloud');
   }
 
@@ -138,7 +138,7 @@
   }
 
   function geolocate() {
-    enterScene(Math.random() < .5 ? 'barcelona' : 'matterhorn');
+    enterScene('lavaux');
   }
 
   function cycleCity(direction) {
