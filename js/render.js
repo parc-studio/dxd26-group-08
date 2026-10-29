@@ -134,6 +134,28 @@
       const btn = document.querySelector('.geolocate-button');
       btn.disabled = App.state.get('geoBusy');
     },
+    citySwap(direction, update) {
+      const track = document.querySelector('.city-compass-track');
+      if (!track || this.reduceMotion() || !track.animate) { update(); return; }
+      const old = track.cloneNode(true);
+      old.classList.add('compass-outgoing');
+      old.setAttribute('aria-hidden', 'true');
+      old.inert = true;
+      old.querySelectorAll('[id]').forEach(function (node) { node.removeAttribute('id'); });
+      old.querySelectorAll('[data-show]').forEach(function (node) { node.removeAttribute('data-show'); });
+      track.parentNode.querySelectorAll('.compass-outgoing').forEach(function (node) { node.remove(); });
+      track.getAnimations().forEach(function (animation) { animation.cancel(); });
+      track.parentNode.appendChild(old);
+      update();
+      const distance = direction * track.getBoundingClientRect().width / 3;
+      const options = { duration: 480, easing: 'cubic-bezier(.4,0,.2,1)' };
+      const leaving = old.animate([{ transform: 'translateX(0)', opacity: 1 }, { transform: 'translateX(' + -distance + 'px)', opacity: 0 }], options);
+      leaving.onfinish = function () { old.remove(); };
+      track.animate([{ transform: 'translateX(' + distance + 'px)', opacity: 0 }, { transform: 'translateX(0)', opacity: 1 }], options);
+      const ticks = document.querySelector('.compass-ticks');
+      ticks.getAnimations().forEach(function (animation) { animation.cancel(); });
+      ticks.animate([{ backgroundPositionX: '0px' }, { backgroundPositionX: (-direction * 112) + 'px' }], options);
+    },
     scene() {
       const location = App.state.get('location');
       const weather = App.state.get('weather');
@@ -141,18 +163,27 @@
       const w = App.utils.weathers[weather];
       if (!p || !w) return;
       show('scene-location', p.label);
-      const cityIndex = ['matterhorn', 'barcelona', 'lavaux', 'paris'].indexOf(location);
+      const cities = ['matterhorn', 'barcelona', 'lavaux', 'paris'];
+      const cityIndex = cities.indexOf(location);
       const pagination = document.querySelector('.city-pagination');
       pagination.setAttribute('aria-label', p.label + ', city ' + (cityIndex + 1) + ' of 4');
       pagination.querySelectorAll('span').forEach(function (dot, index) { dot.classList.toggle('is-current', index === cityIndex); });
       document.querySelectorAll('[data-action="cycle-location"]').forEach(function (button) {
         button.setAttribute('aria-label', p.label + ', show next city');
       });
+      const previousCity = App.utils.places[cities[(cityIndex + cities.length - 1) % cities.length]].label;
+      const nextCity = App.utils.places[cities[(cityIndex + 1) % cities.length]].label;
+      const previousButton = document.querySelector('.city-arrow-prev');
+      const nextButton = document.querySelector('.city-arrow-next');
+      previousButton.textContent = previousCity;
+      previousButton.setAttribute('aria-label', 'Go to ' + previousCity);
+      nextButton.textContent = nextCity;
+      nextButton.setAttribute('aria-label', 'Go to ' + nextCity);
       show('scene-location-small', p.label.toUpperCase());
       show('scene-temperature', App.utils.temperatures[location][weather]);
       // Weather label under the city: "Sunny Now" for the live weather, just "Sunny" when previewing another one.
       const nowTag = document.querySelector('.scene-now-tag');
-      nowTag.hidden = false;
+      nowTag.hidden = true;
       nowTag.textContent = App.state.get('isWeatherPreview') ? w.label : w.label + ' Now';
       document.querySelector('.scene-temperature').hidden = false;
       show('weather-name', w.label);

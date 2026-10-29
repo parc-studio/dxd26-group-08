@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="css/tokens.css" />
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/frame.css" />
-    <link rel="stylesheet" href="css/app.css?v=20261029-city-smooth" />
+    <link rel="stylesheet" href="css/app.css?v=20261029-compass-click" />
   </head>
   <body>
     <div class="phone" id="salomon-app">
@@ -69,16 +69,21 @@
         <div class="scene-shade" aria-hidden="true"></div>
         <div class="avatar-layer" id="avatar-layer" aria-hidden="true"></div>
 
-        <button class="city-arrow city-arrow-prev" type="button" data-action="cycle-location-prev" aria-label="Previous city">&#8592;</button>
-        <button class="city-arrow city-arrow-next" type="button" data-action="cycle-location" aria-label="Next city">&#8594;</button>
         <img class="scene-logo" src="assets/salomon-logo-white.png" alt="Salomon" width="600" height="70" />
         <header class="scene-header">
           <div class="scene-heading">
+            <div class="city-compass">
+              <div class="city-compass-track">
+                <button class="city-arrow city-arrow-prev" type="button" data-action="cycle-location-prev" aria-label="Go to Barcelona">Barcelona</button>
             <h1 id="scene-title" tabindex="-1">
               <button class="scene-city-cycle" type="button" data-action="cycle-location" data-show="scene-location" aria-label="Show next city" title="Swipe left or right to change city">Matterhorn</button>
               <span class="scene-temperature" data-show="scene-temperature">+3°</span>
-              <span class="scene-now-tag" title="Current conditions in the demo" aria-label="Current weather, demo">Now</span>
             </h1>
+                <button class="city-arrow city-arrow-next" type="button" data-action="cycle-location" aria-label="Go to Paris">Paris</button>
+              </div>
+            </div>
+            <div class="compass-ticks" aria-hidden="true"></div>
+            <span class="scene-now-tag" title="Current conditions in the demo" aria-label="Current weather, demo">Now</span>
             <div class="city-pagination" role="img" aria-label="City 1 of 4"><span></span><span></span><span></span><span></span></div>
           </div>
         </header>
@@ -149,7 +154,7 @@
     <script src="js/state.js?v=20261029-lavaux-start"></script>
     <script src="js/shared.js"></script>
     <script src="js/shop.js?v=20261029-device-compass"></script>
-    <script src="js/render.js?v=20261029-lavaux-start"></script>
-    <script src="js/app.js?v=20261029-lavaux-start"></script>
+    <script src="js/render.js?v=20261029-compass-clean"></script>
+    <script src="js/app.js?v=20261029-compass-motion"></script>
   </body>
 </html>

@@ -145,8 +145,10 @@
     const cities = ['matterhorn', 'barcelona', 'lavaux', 'paris'];
     const current = cities.indexOf(App.state.get('location'));
     const next = cities[(current + direction + cities.length) % cities.length];
-    App.state.set('location', next);
-    resetCityWeather(next);
+    App.render.citySwap(direction, function () {
+      App.state.set('location', next);
+      resetCityWeather(next);
+    });
   }
 
   const actions = {
