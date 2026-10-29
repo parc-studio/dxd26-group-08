@@ -3,7 +3,7 @@
   window.App = window.App || {};
   App.config = {
     avatarSrc: 'assets/silhouette.svg',
-    mannequinHeadSrc: 'assets/silhouette.svg',
+    mannequinHeadSrc: 'assets/mannequin-head.svg',
     mannequinTest: new URLSearchParams(window.location.search).get('mannequin') !== 'original'
   };
 
@@ -416,7 +416,10 @@
   }
 
   function bindCitySwipe() {
-    const city = document.querySelector('.scene-city-cycle');
+    document.querySelectorAll('.scene-city-cycle, .city-arrow').forEach(bindCityGesture);
+  }
+
+  function bindCityGesture(city) {
     let gesture = null;
     city.addEventListener('pointerdown', function (event) {
       if (event.button !== 0) return;

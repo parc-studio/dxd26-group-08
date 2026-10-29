@@ -43,6 +43,17 @@
     document.querySelectorAll('[data-show="' + name + '"]').forEach(function (node) { node.textContent = value; });
   }
 
+  // Warm the cache: the other cities in the current weather, so switching city is instant.
+  const preloaded = {};
+  function preloadCities(weather) {
+    ['matterhorn', 'barcelona', 'lavaux', 'paris'].forEach(function (city) {
+      const path = App.utils.imageFor(city, weather);
+      if (preloaded[path]) return;
+      preloaded[path] = new Image();
+      preloaded[path].src = path;
+    });
+  }
+
   function crossfadeImage() {
     const location = App.state.get('location');
     const weather = App.state.get('weather');
@@ -57,6 +68,7 @@
     const path = App.utils.imageFor(location, weather);
     newImage.onload = function () {
       if (serial !== imageRequest) return;
+      setTimeout(function () { preloadCities(weather); }, 300);
       const app = document.getElementById('salomon-app');
       const cityChanged = location !== lastLocation;
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -89,7 +101,7 @@
           if (backdropAnimation === animation) backdropAnimation = null;
         };
       }
-      if (cityChanged && !reduce) transitionTimer = setTimeout(swap, 280);
+      if (cityChanged && !reduce) transitionTimer = setTimeout(swap, 300);
       else swap();
     };
     newImage.onerror = function () {
@@ -376,7 +388,8 @@
       });
     },
     pieceImage(piece) {
-      const img = document.createElement('img');
+      const splitBoots = piece.src.indexOf('ski-boots-aligned.webp') !== -1;
+      const img = document.createElement(splitBoots ? 'div' : 'img');
       const group = App.outfitGroups[piece.slot];
       img.dataset.group = group;
       img.dataset.src = piece.src;
@@ -384,6 +397,20 @@
       img.alt = piece.label;
       img.draggable = false;
       img.className = 'outfit-piece slot-' + piece.slot + (piece.hood ? ' has-hood' : '');
+      if (splitBoots) {
+        img.classList.add('ski-boots-pair');
+        img.setAttribute('role', 'img');
+        img.setAttribute('aria-label', piece.label);
+        ['left', 'right'].forEach(function (side) {
+          const boot = document.createElement('img');
+          boot.src = piece.src;
+          boot.alt = '';
+          boot.draggable = false;
+          boot.className = 'boot-' + side;
+          boot.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
+          img.appendChild(boot);
+        });
+      }
       if (piece.fit) Object.assign(img.style, piece.fit);
       img.onerror = function () { img.remove(); if (img.priceTag) img.priceTag.remove(); };
       // White dot on the product: tap it to see its price. It travels with the product (priceTag).
@@ -470,12 +497,13 @@
         .sort(function (a, b) { return (parseInt(getComputedStyle(b).zIndex, 10) || 0) - (parseInt(getComputedStyle(a).zIndex, 10) || 0); });
       for (let i = 0; i < imgs.length; i++) {
         const img = imgs[i];
+        const source = img.querySelector('img') || img;
         const box = img.getBoundingClientRect();
-        if (!img.naturalWidth || !box.width) continue;
+        if (!source.naturalWidth || !box.width) continue;
         if (img.style.transform) continue;
-        const scale = Math.min(box.width / img.naturalWidth, box.height / img.naturalHeight);
-        const w = img.naturalWidth * scale;
-        const h = img.naturalHeight * scale;
+        const scale = Math.min(box.width / source.naturalWidth, box.height / source.naturalHeight);
+        const w = source.naturalWidth * scale;
+        const h = source.naturalHeight * scale;
         const left = box.left + (box.width - w) / 2;
         const py = parseFloat((getComputedStyle(img).objectPosition.split(' ')[1]) || '50') / 100;
         const top = box.top + (box.height - h) * py;

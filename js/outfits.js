@@ -1,7 +1,7 @@
 // Outfits per city / weather / universe. Edit here to change a look.
 // short: true on a top shows the mannequin's arms (short sleeves).
 // slot: top, pants, shorts, tights, shoes, hat, headband (sets where the layer sits on the avatar).
-// To add a missing product, drop its PNG in assets/products/<city>/ with the same file name.
+// To add a missing product, drop its PNG in assets/products/<city>/ (then export a .webp copy) with the same file name.
 (function () {
   window.App = window.App || {};
   const dir = 'assets/products/barcelona/';
@@ -31,7 +31,7 @@
     'xt-6': 180
   };
   function item(file, slot, label, extra) {
-    return Object.assign({ src: dir + file + '.png', slot: slot, label: label, price: prices[file] }, extra || {});
+    return Object.assign({ src: dir + file + '.webp', slot: slot, label: label, price: prices[file] }, extra || {});
   }
   // Body zones: a swipe on one product swaps only its zone to the other universe.
   App.outfitGroups = { top: 'top', pants: 'bottom', shorts: 'bottom', tights: 'bottom', shoes: 'shoes', hat: 'head', headband: 'head' };
@@ -104,8 +104,8 @@
       'black-puffer': { top: '9%', left: '-8%', width: '116%', height: '42%' },
       'lilac-puffer': { top: '5%', left: '-5%', width: '110%', height: '46%' },
       'brown-fleece': { top: '11.5%', left: '-7%', width: '114%', height: '40%' },
-      'black-beanie': { top: '-1%', left: '30%', width: '40%', height: '9%' },
-      'cream-beanie': { top: '-1%', left: '30%', width: '40%', height: '9%' },
+      'black-beanie': { top: '-0.6%', left: '29.5%', width: '41%', height: '10.4%' },
+      'cream-beanie': { top: '-0.6%', left: '29.5%', width: '41%', height: '10.4%' },
       'hiking-shoes': { left: '5%', width: '90%', height: 'auto' },
       'trail-shoes': { left: '5%', width: '90%', height: 'auto' }
     };

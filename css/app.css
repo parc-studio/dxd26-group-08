@@ -89,7 +89,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .slot-top.has-hood {top:1%;height:49%;}                                                         /* hood up around the head */
 .slot-hat {z-index:4;top:-4.5%;left:26%;width:48%;height:11.5%;object-position:50% 100%;}            /* on the head */
 .outfit-piece.is-leaving,.outfit-piece.is-dragging,.outfit-price.is-leaving,.outfit-price.is-dragging {z-index:9;pointer-events:none;}
-.slot-headband {z-index:4;top:1.5%;left:30%;width:40%;height:7%;object-position:50% 50%;}          /* forehead */
+.slot-headband {z-index:4;top:0.4%;left:32%;width:36%;height:6.2%;object-position:50% 50%;}          /* forehead */
 .scene-logo {position:absolute;z-index:5;top:calc(var(--safe-top) + 24px);left:20px;width:88px;height:auto;pointer-events:none;filter:drop-shadow(0 1px 6px rgba(0,0,0,.3));}
 .scene-header {position:absolute; z-index:4; top:max(50px,calc(var(--safe-top) + 38px)); left:18px; right:18px; pointer-events:none;}
 .scene-heading {text-align:center;text-shadow:0 2px 13px rgba(0,0,0,.28);}
@@ -232,7 +232,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 @media (prefers-reduced-motion: no-preference) {
   .entry-brand img { animation: brand-reveal 1.15s cubic-bezier(.2,.85,.25,1) both; }
   .entry-panel {animation:brand-subtitle .7s ease .35s both;}
-  .scene-backdrops::after {transition:opacity 260ms ease-in-out;}
+  .scene-backdrops::after {transition:opacity 450ms cubic-bezier(.4,0,.2,1);}
+  .phone.is-scene-changing .scene-backdrops::after {transition-duration:300ms;transition-timing-function:ease-in-out;}
   .glass-menu-toggle,.glass-dot,.weather-choice,.geolocate-button {transition:transform 230ms ease,background 230ms ease,border-color 230ms ease;}
   .weather-rail {transition:max-height 390ms cubic-bezier(.2,.8,.2,1),opacity 320ms ease,padding 390ms ease;}
   .step-controls {transition:opacity 300ms ease,transform 350ms cubic-bezier(.2,.8,.2,1);}
@@ -284,17 +285,15 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .price-dot-button {position:absolute;left:-22px;top:-22px;width:44px;height:44px;display:grid;place-items:center;pointer-events:auto;border:0;background:transparent;border-radius:50%;}
 .price-dot-button::before {content:'';width:12px;height:12px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px rgba(255,255,255,.28),0 2px 8px rgba(0,0,0,.35);}
 .price-bubble {position:absolute;left:0;bottom:16px;transform:translate(-50%,6px) scale(.96);display:flex;flex-direction:column;align-items:center;gap:3px;min-width:max-content;padding:8px 12px;border-radius:14px;background:#111;border:1px solid rgba(255,255,255,.55);color:#fff;font-size:10px;line-height:1.15;letter-spacing:.02em;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.35);opacity:0;pointer-events:none;}
-.price-bubble strong {font-size:13px;font-weight:700;}
+.price-bubble strong {font-size:15px;font-weight:700;}
 .price-bubble-name {color:rgba(255,255,255,.75);}
 .price-dot.is-open .price-bubble {opacity:1;transform:translate(-50%,0) scale(1);}
 .price-dot.is-open {z-index:14;}
 .price-dot.is-leaving,.price-dot.is-dragging {pointer-events:none;}
 .price-dot.is-dragging .price-dot-button {pointer-events:none;}
-@media (prefers-reduced-motion: no-preference) {
-  .price-bubble {transition:opacity 180ms ease,transform 220ms cubic-bezier(.2,.9,.3,1.2);}
-  .price-dot-button::before {animation:price-pulse 2.4s ease-in-out infinite;}
-  @keyframes price-pulse {0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,.28),0 2px 8px rgba(0,0,0,.35)}50%{box-shadow:0 0 0 7px rgba(255,255,255,.12),0 2px 8px rgba(0,0,0,.35)}}
-}
+.ski-boots-pair img {position:absolute;inset:0;width:100%;height:100%;object-fit:contain;max-width:none;pointer-events:none;}
+.ski-boots-pair .boot-left {clip-path:inset(0 50% 0 0);transform:translateX(5%);}
+.ski-boots-pair .boot-right {clip-path:inset(0 0 0 50%);transform:translateX(-2.5%);}
 
 /* Price bubble: only the price, on the outer side of the avatar. */
 .price-bubble-name {display:none;}
@@ -326,6 +325,25 @@ button:focus-visible, input:focus-visible { outline: 2px solid #ecffca; outline-
 .city-arrow {position:absolute;z-index:16;top:19cqh;width:44px;height:44px;display:grid;place-items:center;padding:0;border:0;background:none;color:rgba(255,255,255,.55);font-family:'Apax',sans-serif;font-size:22px;line-height:1;cursor:pointer;transition:color .2s ease,transform .2s ease;}
 .city-arrow-prev {left:10px;}
 .city-arrow-next {right:10px;}
+/* Bigger tap zone, glyph stays at the same spot */
+.city-arrow {top:calc(19cqh - 38px);width:80px;height:120px;}
+.city-arrow-prev {left:0;justify-items:start;padding-left:20px;}
+.city-arrow-next {right:0;justify-items:end;padding-right:20px;}
+/* Round tap zone (120px) centred on the arrow glyph */
+.city-arrow {top:calc(19cqh - 38px);width:120px;height:120px;border-radius:50%;padding:0;justify-items:center;}
+.city-arrow-prev {left:-29px;padding:0;justify-items:center;}
+.city-arrow-next {right:-29px;padding:0;justify-items:center;}
+.city-arrow,.city-arrow:active {background:none;-webkit-tap-highlight-color:transparent;}
+.city-arrow:focus:not(:focus-visible) {outline:none;}
+/* Even bigger invisible round tap zone (160px), same glyph position */
+.city-arrow {top:calc(19cqh - 58px);width:160px;height:160px;}
+.city-arrow-prev {left:-49px;}
+.city-arrow-next {right:-49px;}
+/* Tap zones drawn by Stella: a big rounded zone on each side of the head.
+   The arrow glyph keeps its spot (31px from the edge, head height). */
+.city-arrow {display:grid;align-content:start;place-items:start stretch;width:auto;height:auto;padding:0;line-height:22px;touch-action:pan-y;}
+.city-arrow-prev {left:0;top:6cqh;width:39cqw;height:25cqh;border-radius:0 50% 50% 0 / 0 50% 50% 0;text-align:left;padding:calc(13cqh + 11px) 0 0 20px;}
+.city-arrow-next {right:0;left:auto;top:7cqh;width:42cqw;height:34cqh;border-radius:50% 0 0 50% / 50% 0 0 50%;text-align:right;padding:calc(12cqh + 11px) 20px 0 0;}
 .city-arrow:hover,.city-arrow:focus-visible {color:#fff;}
 .city-arrow:active {transform:scale(.9);}
 @media (prefers-reduced-motion: reduce) {.city-arrow {transition:none;}.city-arrow:active {transform:none;}}
